@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { View, Button, StyleSheet, Alert } from 'react-native';
+import { View, Button, StyleSheet, Alert, Text, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Title } from '../components/ui/Title';
@@ -7,11 +7,18 @@ import { NumberContainer } from '../components/game/NumberContainer';
 import { PrimaryButton } from '../components/ui/PrimaryButton';
 import { Card } from '../components/ui/Card';
 import { InstructionText } from '../components/ui/InstructionText';
+import { GameLogItem } from '../components/game/GuessLogItem';
 
 type GameScreenProps = {
   userNumber: number,
   onGameOver: () => void;
-  onBack: () => void;
+  onNewClue: () => void;
+}
+
+type RoundLog = {
+  id: number;
+  guess: number;
+  round: number;
 }
 
 const styles = StyleSheet.create({
@@ -28,6 +35,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
   },
+  listContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
 });
 
 const generateRandomNumber = (min: number, max: number, exclude: number): number => {
@@ -40,11 +51,12 @@ const generateRandomNumber = (min: number, max: number, exclude: number): number
   return randomNumber
 };
 
-export const GameScreen = ({ userNumber, onGameOver, onBack }: GameScreenProps) => {
+export const GameScreen = ({ userNumber, onGameOver, onNewClue }: GameScreenProps) => {
   const minBoundaryRef = useRef<number>(1)
   const maxBoundaryRef = useRef<number>(100)
   const initialGuess = generateRandomNumber(minBoundaryRef.current, maxBoundaryRef.current, userNumber);
   const [currentGuess, setCurrentGuess] = useState<number>(initialGuess);
+  const [guessRounds, setGuessRounds] = useState<RoundLog[]>([{ id: initialGuess, guess: initialGuess, round: 1 }]);
 
   const handleNextGuess = (direction: 'lower' | 'greater') => {
     if (
@@ -62,9 +74,11 @@ export const GameScreen = ({ userNumber, onGameOver, onBack }: GameScreenProps) 
     switch (direction) {
       case 'lower':
         maxBoundaryRef.current = currentGuess;
+        onNewClue()
         break;
       case 'greater':
         minBoundaryRef.current = currentGuess + 1;
+        onNewClue()
         break;
     };
 
@@ -72,11 +86,16 @@ export const GameScreen = ({ userNumber, onGameOver, onBack }: GameScreenProps) 
 
     if (newGuess === userNumber) {
       onGameOver();
+      maxBoundaryRef.current = 100;
+      minBoundaryRef.current = 1;
       return;
     }
 
     setCurrentGuess(newGuess);
+    setGuessRounds((prev) => [{ id: newGuess, guess: newGuess, round: prev.length + 1 }, ...prev]);
   };
+
+  const renderItem = ({ item }: { item: RoundLog }) => <GameLogItem guess={item.guess} round={item.round} />;
 
   return (
     <View style={styles.screen}>
@@ -97,7 +116,9 @@ export const GameScreen = ({ userNumber, onGameOver, onBack }: GameScreenProps) 
           </View>
         </View>
       </Card>
-      <Button title="Back" onPress={onBack} />
+      <View style={styles.listContainer}>
+        <FlatList data={guessRounds} renderItem={renderItem} keyExtractor={(item) => item.id.toString()} />
+      </View>
     </View>
   );
 };
