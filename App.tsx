@@ -1,6 +1,8 @@
-import { FC, useState, JSX, useEffect } from 'react';
+import { useState, JSX, useEffect } from 'react';
 import { StyleSheet, ImageBackground, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFonts } from 'expo-font';
+import AppLoading from 'expo-app-loading';
 
 import { StartGameScreen } from './screens/StartGameScreen';
 import { GameScreen } from './screens/GameScreen';
@@ -33,6 +35,15 @@ export default function App() {
       setScreen(<StartGameScreen onConfirm={handlePickNumber} />)
     }
   }, [isGameOver, userNumber]);
+
+  const [areFontsLoaded] = useFonts({
+    'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
+    'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf'),
+  });
+
+  if (!areFontsLoaded) {
+    return <AppLoading />;
+  }
 
   return (
     <LinearGradient colors={[Colors.primary700, Colors.accent500]} style={styles.rootScreen}>

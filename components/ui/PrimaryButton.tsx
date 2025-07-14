@@ -1,8 +1,9 @@
+import { JSX } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 
 type PrimaryButtonProps = {
-  children: string;
+  children: string | JSX.Element;
   onPress: () => void;
 }
 
