@@ -9,6 +9,15 @@ import { GameScreen } from './screens/GameScreen';
 import { Colors } from './constants/colors';
 import { GameOverScreen } from './screens/GameOverScreen';
 
+const styles = StyleSheet.create({
+  rootScreen: {
+    flex: 1,
+  },
+  backgroundImage: {
+    opacity: 0.15,
+  },
+});
+
 export default function App() {
   const [userNumber, setUserNumber] = useState<number | null>();
 
@@ -25,10 +34,6 @@ export default function App() {
   };
 
   const [screen, setScreen] = useState<JSX.Element>(<StartGameScreen onConfirm={handlePickNumber} />)
-
-  const handleGoBack = () => {
-    setUserNumber(null);
-  };
 
   const handleGameOver = () => {
     setIsGameOver(true);
@@ -75,12 +80,3 @@ export default function App() {
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  rootScreen: {
-    flex: 1,
-  },
-  backgroundImage: {
-    opacity: 0.15,
-  },
-});
