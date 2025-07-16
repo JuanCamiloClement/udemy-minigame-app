@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, useWindowDimensions } from "react-native";
 import { Colors } from "../../constants/colors";
 
 type CardProps = {
@@ -8,9 +8,10 @@ type CardProps = {
 
 const styles = StyleSheet.create({
   card: {
+    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 36,
+    marginTop: 18,
     marginHorizontal: 24,
     padding: 16,
     backgroundColor: Colors.primary800,
@@ -31,8 +32,10 @@ const styles = StyleSheet.create({
 });
 
 export const Card = ({ children }: CardProps) => {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, isLandscape && { flex: 1 }]}>
       {children}
     </View>
   );

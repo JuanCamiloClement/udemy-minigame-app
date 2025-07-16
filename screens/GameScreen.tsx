@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { View, Button, StyleSheet, Alert, Text, FlatList } from 'react-native';
+import { View, StyleSheet, Alert, FlatList, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Title } from '../components/ui/Title';
@@ -22,9 +22,18 @@ type RoundLog = {
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  rootContainer: {
     flex: 1,
     padding: 36,
+    alignItems: 'center',
+  },
+  gameZoneContainer: {
+    width: '100%',
+  },
+  gameZoneContainerWide: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly'
   },
   instructionText: {
     marginBottom: 12,
@@ -57,6 +66,7 @@ export const GameScreen = ({ userNumber, onGameOver, onNewClue }: GameScreenProp
   const initialGuess = generateRandomNumber(minBoundaryRef.current, maxBoundaryRef.current, userNumber);
   const [currentGuess, setCurrentGuess] = useState<number>(initialGuess);
   const [guessRounds, setGuessRounds] = useState<RoundLog[]>([{ id: initialGuess, guess: initialGuess, round: 1 }]);
+  const { width, height } = useWindowDimensions();
 
   const handleNextGuess = (direction: 'lower' | 'greater') => {
     if (
@@ -97,25 +107,29 @@ export const GameScreen = ({ userNumber, onGameOver, onNewClue }: GameScreenProp
 
   const renderItem = ({ item }: { item: RoundLog }) => <GameLogItem guess={item.guess} round={item.round} />;
 
+  const isLandscape = width > height;
+
   return (
-    <View style={styles.screen}>
+    <View style={styles.rootContainer}>
       <Title>Opponent's guess</Title>
-      <NumberContainer>{currentGuess}</NumberContainer>
-      <Card>
-        <InstructionText style={styles.instructionText}>Higher or lower?</InstructionText>
-        <View style={styles.buttonsContainer}>
-          <View style={styles.buttonContainer}>
-            <PrimaryButton onPress={handleNextGuess.bind(this, 'lower')}>
-              <Ionicons name='remove' size={24} color='white' />
-            </PrimaryButton>
+      <View style={isLandscape ? styles.gameZoneContainerWide : styles.gameZoneContainer}>
+        <NumberContainer>{currentGuess}</NumberContainer>
+        <Card>
+          <InstructionText style={styles.instructionText}>Higher or lower?</InstructionText>
+          <View style={styles.buttonsContainer}>
+            <View style={styles.buttonContainer}>
+              <PrimaryButton onPress={handleNextGuess.bind(this, 'lower')}>
+                <Ionicons name='remove' size={24} color='white' />
+              </PrimaryButton>
+            </View>
+            <View style={styles.buttonContainer}>
+              <PrimaryButton onPress={handleNextGuess.bind(this, 'greater')}>
+                <Ionicons name='add' size={24} color='white' />
+              </PrimaryButton>
+            </View>
           </View>
-          <View style={styles.buttonContainer}>
-            <PrimaryButton onPress={handleNextGuess.bind(this, 'greater')}>
-              <Ionicons name='add' size={24} color='white' />
-            </PrimaryButton>
-          </View>
-        </View>
-      </Card>
+        </Card>
+      </View>
       <View style={styles.listContainer}>
         <FlatList data={guessRounds} renderItem={renderItem} keyExtractor={(item) => item.id.toString()} />
       </View>
